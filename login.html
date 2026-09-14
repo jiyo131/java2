@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>登录 · Login</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+    background: url("Honkai_Star_Rail_style_cinemat_2026-09-14T03-42-18.png") center / cover no-repeat fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    padding: 20px;
+    position: relative;
+  }
+  /* 暗色遮罩：保证登录卡片在任何背景图上都清晰可读 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(15,23,42,0.62) 0%, rgba(49,46,129,0.55) 50%, rgba(76,29,149,0.60) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .card {
+    position: relative;
+    z-index: 1;
+    background: var(--card);
+    width: 100%;
+    max-width: 400px;
+    border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+  }
+  .header {
+    padding: 36px 32px 8px;
+    text-align: center;
+  }
+  .logo {
+    width: 56px; height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 26px; font-weight: 700;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  form { padding: 20px 32px 32px; }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 7px; color: #334155;
+  }
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+  }
+  .field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  }
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px; font-size: 13px;
+  }
+  .row label { display: flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }
+  .row a { color: var(--primary); text-decoration: none; }
+  .row a:hover { text-decoration: underline; }
+  button.submit {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), #7c3aed);
+    color: #fff;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer;
+    transition: transform .1s, box-shadow .2s, opacity .2s;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+  }
+  button.submit:hover { opacity: .95; }
+  button.submit:active { transform: translateY(1px); }
+  button.submit:disabled { opacity: .6; cursor: not-allowed; }
+  .divider {
+    text-align: center; color: var(--muted);
+    font-size: 12px; margin: 20px 0 14px; position: relative;
+  }
+  .divider::before, .divider::after {
+    content: ""; position: absolute; top: 50%;
+    width: 42%; height: 1px; background: var(--border);
+  }
+  .divider::before { left: 0; } .divider::after { right: 0; }
+  .socials { display: flex; gap: 12px; }
+  .socials button {
+    flex: 1; padding: 10px; border: 1px solid var(--border);
+    border-radius: 10px; background: #fff; cursor: pointer;
+    font-size: 13px; color: var(--text); transition: background .2s;
+  }
+  .socials button:hover { background: #f8fafc; }
+  .footer {
+    text-align: center; font-size: 13px; color: var(--muted);
+    padding: 0 32px 28px;
+  }
+  .footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+  .footer a:hover { text-decoration: underline; }
+  .msg { font-size: 13px; margin-bottom: 14px; min-height: 18px; text-align: center; }
+  .msg.error { color: var(--danger); }
+  .msg.ok { color: #16a34a; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo">L</div>
+      <h1>欢迎回来</h1>
+      <p>登录你的账户以继续</p>
+    </div>
+    <form id="loginForm" novalidate>
+      <div class="msg" id="msg"></div>
+      <div class="field">
+        <label for="username">用户名 / 邮箱</label>
+        <input type="text" id="username" name="username" placeholder="请输入用户名或邮箱" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label for="password">密码</label>
+        <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" />
+      </div>
+      <div class="row">
+        <label><input type="checkbox" id="remember" /> 记住我</label>
+        <a href="#" id="forgot">忘记密码？</a>
+      </div>
+      <button type="submit" class="submit" id="submitBtn">登 录</button>
+      <div class="divider">或使用第三方账号</div>
+      <div class="socials">
+        <button type="button" data-provider="GitHub">GitHub</button>
+        <button type="button" data-provider="Google">Google</button>
+        <button type="button" data-provider="微信">微信</button>
+      </div>
+    </form>
+    <div class="footer">
+      还没有账户？<a href="#" id="signup">立即注册</a>
+    </div>
+  </div>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    msg.textContent = '';
+    msg.className = 'msg';
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!username) { msg.textContent = '请输入用户名或邮箱'; msg.className = 'msg error'; return; }
+    if (!password) { msg.textContent = '请输入密码'; msg.className = 'msg error'; return; }
+    if (password.length < 6) { msg.textContent = '密码长度至少 6 位'; msg.className = 'msg error'; return; }
+
+    // 演示：实际项目中此处应调用后端登录接口
+    btn.disabled = true;
+    btn.textContent = '登录中...';
+    setTimeout(() => {
+      msg.textContent = '登录成功（演示）！用户名：' + username;
+      msg.className = 'msg ok';
+      btn.disabled = false;
+      btn.textContent = '登 录';
+      console.log('Login payload:', { username, remember: document.getElementById('remember').checked });
+    }, 800);
+  });
+
+  document.querySelectorAll('.socials button').forEach(b => {
+    b.addEventListener('click', () => alert('第三方登录：' + b.dataset.provider + '（演示）'));
+  });
+  document.getElementById('forgot').addEventListener('click', e => { e.preventDefault(); alert('跳转找回密码（演示）'); });
+  document.getElementById('signup').addEventListener('click', e => { e.preventDefault(); alert('跳转注册页（演示）'); });
+</script>
+</body>
+</html>
